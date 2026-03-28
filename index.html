@@ -173,7 +173,7 @@
       <code id="cmd-text"></code>
     </div>
     <div style="margin-top:12px;font-size:13px;color:#605e5c">
-      This command installs silently, registers the scheduled task, and sends your first reminder.
+      This command unblocks the downloaded scripts, installs silently, registers the scheduled task, and sends your first reminder.
       <br>To update settings later: <code style="background:#f3f2f1;padding:1px 5px;border-radius:3px">.\Install.ps1 -Reconfigure</code>
     </div>
   </div>
@@ -239,7 +239,7 @@ function generateCommand() {
     return;
   }
 
-  let cmd = `.\\Install.ps1 -NonInteractive`;
+  let cmd = `Get-ChildItem .\\*.ps1 | Unblock-File; .\\Install.ps1 -NonInteractive`;
   cmd += ` -OrgName "${esc(orgName)}"`;
   cmd += ` -Project "${esc(project)}"`;
   if (userEmail)       cmd += ` -UserEmail "${esc(userEmail)}"`;
