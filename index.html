@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PR Aging Reminder - Setup</title>
+  <script src="https://res.cdn.office.net/teams-js/2.22.0/js/MicrosoftTeams.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f3f2f1;color:#323130;min-height:100vh}
+    .app{max-width:760px;margin:0 auto;padding:20px 16px}
+    .header{background:linear-gradient(135deg,#0078d4,#106ebe);color:white;padding:20px 24px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+    .header h1{font-size:20px;font-weight:600}
+    .header p{font-size:13px;opacity:.85;margin-top:3px}
+    .card{background:white;border-radius:8px;padding:22px 24px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+    .card h2{font-size:14px;font-weight:700;color:#323130;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #0078d4;display:flex;align-items:center;gap:8px}
+    .step-num{background:#0078d4;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-group{display:flex;flex-direction:column;gap:4px}
+    .form-group.full{grid-column:1/-1}
+    label{font-size:11px;font-weight:700;color:#605e5c;text-transform:uppercase;letter-spacing:.3px}
+    input,select{padding:8px 10px;border:1px solid #c8c6c4;border-radius:4px;font-size:13px;color:#323130;transition:border-color .15s}
+    input:focus,select:focus{outline:none;border-color:#0078d4;box-shadow:0 0 0 2px rgba(0,120,212,.12)}
+    input[type=password]{font-family:monospace}
+    .hint{font-size:11px;color:#605e5c;margin-top:3px}
+    .hint a{color:#0078d4;text-decoration:none}
+    .hint a:hover{text-decoration:underline}
+    .btn{padding:9px 20px;border:none;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+    .btn-primary{background:#0078d4;color:white}
+    .btn-primary:hover{background:#106ebe}
+    .btn-copy{background:#107c10;color:white;padding:8px 16px;font-size:13px}
+    .btn-copy:hover{background:#0b6a0b}
+    .btn-copy.copied{background:#605e5c}
+    .output-box{background:#1e1e1e;color:#d4d4d4;border-radius:6px;padding:14px 16px;font-family:Consolas,monospace;font-size:12px;line-height:1.6;word-break:break-all;white-space:pre-wrap;margin-top:12px;position:relative;display:none}
+    .output-box .copy-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .output-box .label{color:#9cdcfe;font-size:11px;font-weight:600;text-transform:uppercase}
+    .output-box code{color:#ce9178}
+    .steps-guide{display:flex;flex-direction:column;gap:10px}
+    .step-item{display:flex;gap:12px;align-items:flex-start;padding:10px;border-radius:6px;background:#f8f7f6}
+    .step-item .num{background:#0078d4;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px}
+    .step-item .text{font-size:13px;line-height:1.5}
+    .step-item .text strong{display:block;font-weight:600;margin-bottom:2px}
+    .step-item .text a{color:#0078d4;text-decoration:none}
+    .step-item .text a:hover{text-decoration:underline}
+    .badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-weight:700}
+    .badge-free{background:#dff6dd;color:#107c10}
+    .warning-box{background:#fff4ce;border:1px solid #f7e28d;border-radius:6px;padding:10px 14px;font-size:12px;color:#323130;margin-bottom:14px}
+    .warning-box strong{color:#7a4f00}
+    .user-chip{background:rgba(255,255,255,.2);border-radius:20px;padding:3px 12px;font-size:12px;display:inline-block;margin-top:4px}
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div style="font-size:36px">🔔</div>
+    <div>
+      <h1>PR Aging Reminder</h1>
+      <p>Daily Teams + Email alerts for your aging pull requests</p>
+      <div class="user-chip" id="user-chip">Loading...</div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="card">
+    <h2><span class="step-num">i</span> How it works</h2>
+    <div class="steps-guide">
+      <div class="step-item"><div class="num">1</div><div class="text"><strong>Download the plugin ZIP</strong>Extract it to a permanent folder on your machine (e.g. <code>C:\Tools\PRAgingReminder\</code>)</div></div>
+      <div class="step-item"><div class="num">2</div><div class="text"><strong>Fill in your details below</strong>Org, project, PAT, webhook URL — all pre-filled where possible</div></div>
+      <div class="step-item"><div class="num">3</div><div class="text"><strong>Copy the generated command</strong>Paste it in PowerShell inside your extracted folder — it installs silently and sends your first reminder</div></div>
+      <div class="step-item"><div class="num">4</div><div class="text"><strong>Done — reminders run automatically</strong>A Windows Scheduled Task fires Mon-Fri at your chosen time <span class="badge badge-free">No cloud required</span></div></div>
+    </div>
+  </div>
+
+  <!-- Prerequisites -->
+  <div class="card">
+    <h2><span class="step-num">A</span> Prerequisites</h2>
+    <div class="steps-guide">
+      <div class="step-item">
+        <div class="num">1</div>
+        <div class="text">
+          <strong>Download plugin ZIP</strong>
+          <a href="https://kunalekawde.github.io/pr-aging-reminder/PRAgingReminder.zip" target="_blank">Download PRAgingReminder.zip</a> and extract to a permanent folder.
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="num">2</div>
+        <div class="text">
+          <strong>Create an Azure DevOps PAT</strong>
+          Go to <a href="https://dev.azure.com/msazuredev/_usersSettings/tokens" target="_blank">dev.azure.com → User Settings → PATs</a>
+          → New Token → Scope: <strong>Code &gt; Read</strong> → Copy the token.
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="num">3</div>
+        <div class="text">
+          <strong>Create a Teams Incoming Webhook</strong>
+          In your Teams channel: <strong>··· → Connectors → Incoming Webhook → Configure</strong> → Copy URL.
+          <br><em style="color:#605e5c;font-size:11px;">Skip if using email-only notifications.</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configuration Form -->
+  <div class="card">
+    <h2><span class="step-num">B</span> Configure Your Reminders</h2>
+
+    <div class="warning-box">
+      <strong>Security note:</strong> Your PAT is used only to generate the install command below.
+      It is never sent to any server — the command runs entirely on your machine.
+      The PAT is stored encrypted (Windows DPAPI) in <code>config.json</code> on your local disk.
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Azure DevOps Organization</label>
+        <input id="orgName" type="text" placeholder="msazuredev" value="msazuredev"/>
+      </div>
+      <div class="form-group">
+        <label>Project Name</label>
+        <input id="project" type="text" placeholder="AzureForOperators" value="AzureForOperators"/>
+      </div>
+      <div class="form-group full">
+        <label>Your Email Address</label>
+        <input id="userEmail" type="email" placeholder="you@microsoft.com" id="userEmail"/>
+        <div class="hint">Must match the email on your Azure DevOps PRs</div>
+      </div>
+      <div class="form-group full">
+        <label>Azure DevOps PAT <span style="color:#c0392b">*</span></label>
+        <input id="pat" type="password" placeholder="Paste your Personal Access Token (Code > Read scope)"/>
+        <div class="hint"><a href="https://dev.azure.com/msazuredev/_usersSettings/tokens" target="_blank">Create a PAT here</a> with scope: Code &gt; Read</div>
+      </div>
+      <div class="form-group full">
+        <label>Teams Incoming Webhook URL <span style="color:#888;font-weight:400">(optional)</span></label>
+        <input id="teamsWebhookUrl" type="url" placeholder="https://outlook.office.com/webhook/..."/>
+        <div class="hint">Teams channel → ··· → Connectors → Incoming Webhook → Configure</div>
+      </div>
+      <div class="form-group full">
+        <label>Email Notification To <span style="color:#888;font-weight:400">(optional)</span></label>
+        <input id="emailTo" type="text" placeholder="you@microsoft.com"/>
+        <div class="hint">Sent via Microsoft Graph API (uses your existing az login session)</div>
+      </div>
+      <div class="form-group">
+        <label>Aging Policy (days)</label>
+        <input id="agingDays" type="number" value="14" min="1" max="90"/>
+        <div class="hint">PRs older than this are flagged overdue</div>
+      </div>
+      <div class="form-group">
+        <label>Daily Reminder Time (24h)</label>
+        <input id="scheduleTime" type="text" value="09:00" placeholder="09:00"/>
+        <div class="hint">Mon–Fri, local machine time</div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="generateCommand()">Generate Install Command</button>
+      <span style="font-size:12px;color:#605e5c">PAT required — all other fields have defaults</span>
+    </div>
+  </div>
+
+  <!-- Generated Command -->
+  <div class="card" id="cmd-card" style="display:none">
+    <h2><span class="step-num">C</span> Run This Command in PowerShell</h2>
+    <p style="font-size:13px;color:#605e5c;margin-bottom:4px">
+      Open PowerShell, <code>cd</code> to where you extracted the plugin ZIP, then paste:
+    </p>
+    <div class="output-box" id="cmd-output" style="display:block">
+      <div class="copy-row">
+        <span class="label">PowerShell</span>
+        <button class="btn btn-copy" id="copy-btn" onclick="copyCommand()">Copy Command</button>
+      </div>
+      <code id="cmd-text"></code>
+    </div>
+    <div style="margin-top:12px;font-size:13px;color:#605e5c">
+      This command installs silently, registers the scheduled task, and sends your first reminder.
+      <br>To update settings later: <code style="background:#f3f2f1;padding:1px 5px;border-radius:3px">.\Install.ps1 -Reconfigure</code>
+    </div>
+  </div>
+
+  <!-- Run Manually -->
+  <div class="card">
+    <h2><span class="step-num">D</span> Run on Demand</h2>
+    <div class="steps-guide">
+      <div class="step-item"><div class="num">1</div><div class="text"><strong>From PowerShell</strong><code>.\PR-Reminder.ps1</code> — sends reminder immediately</div></div>
+      <div class="step-item"><div class="num">2</div><div class="text"><strong>Via Task Scheduler</strong><code>Start-ScheduledTask -TaskName PRAgingReminder</code></div></div>
+      <div class="step-item"><div class="num">3</div><div class="text"><strong>Dry run (no Teams/Email)</strong><code>.\PR-Reminder.ps1 -DryRun</code> — shows PR table in console</div></div>
+      <div class="step-item"><div class="num">4</div><div class="text"><strong>Uninstall</strong><code>.\Uninstall.ps1</code> — removes scheduled task and config</div></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:11px;color:#a19f9d;padding:8px 0 20px">
+    PR Aging Reminder &nbsp;·&nbsp; No cloud required &nbsp;·&nbsp; PAT encrypted locally with Windows DPAPI
+  </div>
+</div>
+
+<script>
+microsoftTeams.app.initialize().then(() => {
+  microsoftTeams.app.getContext().then(ctx => {
+    const upn  = ctx.user && ctx.user.userPrincipalName ? ctx.user.userPrincipalName : '';
+    const name = ctx.user && ctx.user.displayName      ? ctx.user.displayName       : upn;
+    document.getElementById('user-chip').textContent = name || 'Teams User';
+    if (upn) {
+      const emailField = document.getElementById('userEmail');
+      if (!emailField.value) emailField.value = upn;
+      const emailToField = document.getElementById('emailTo');
+      if (!emailToField.value) emailToField.value = upn;
+    }
+  });
+}).catch(() => {
+  document.getElementById('user-chip').textContent = 'Running outside Teams';
+});
+
+function esc(s) {
+  return s.replace(/"/g, '`"');
+}
+
+function generateCommand() {
+  const orgName         = document.getElementById('orgName').value.trim();
+  const project         = document.getElementById('project').value.trim();
+  const userEmail       = document.getElementById('userEmail').value.trim();
+  const pat             = document.getElementById('pat').value.trim();
+  const teamsWebhookUrl = document.getElementById('teamsWebhookUrl').value.trim();
+  const emailTo         = document.getElementById('emailTo').value.trim();
+  const agingDays       = document.getElementById('agingDays').value.trim() || '14';
+  const scheduleTime    = document.getElementById('scheduleTime').value.trim() || '09:00';
+
+  if (!pat) {
+    alert('Please enter your Azure DevOps PAT (Personal Access Token).');
+    document.getElementById('pat').focus();
+    return;
+  }
+  if (!orgName || !project) {
+    alert('Organization name and project name are required.');
+    return;
+  }
+  if (!teamsWebhookUrl && !emailTo) {
+    alert('Please provide at least one notification channel: Teams Webhook URL or Email.');
+    return;
+  }
+
+  let cmd = `.\\Install.ps1 -NonInteractive`;
+  cmd += ` -OrgName "${esc(orgName)}"`;
+  cmd += ` -Project "${esc(project)}"`;
+  if (userEmail)       cmd += ` -UserEmail "${esc(userEmail)}"`;
+  cmd += ` -PAT "${esc(pat)}"`;
+  if (teamsWebhookUrl) cmd += ` -TeamsWebhookUrl "${esc(teamsWebhookUrl)}"`;
+  if (emailTo)         cmd += ` -EmailTo "${esc(emailTo)}"`;
+  cmd += ` -AgingDays ${agingDays}`;
+  cmd += ` -ScheduleTime "${scheduleTime}"`;
+
+  document.getElementById('cmd-text').textContent = cmd;
+  document.getElementById('cmd-card').style.display = 'block';
+  document.getElementById('cmd-card').scrollIntoView({ behavior: 'smooth' });
+
+  // Reset copy button
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = 'Copy Command';
+  btn.className = 'btn btn-copy';
+}
+
+function copyCommand() {
+  const text = document.getElementById('cmd-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.className = 'btn btn-copy copied';
+    setTimeout(() => {
+      btn.textContent = 'Copy Command';
+      btn.className = 'btn btn-copy';
+    }, 2500);
+  }).catch(() => {
+    // Fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+</script>
+</body>
+</html>
