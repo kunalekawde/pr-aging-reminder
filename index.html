@@ -19,7 +19,7 @@
     .form-group{display:flex;flex-direction:column;gap:4px}
     .form-group.full{grid-column:1/-1}
     label{font-size:11px;font-weight:700;color:#605e5c;text-transform:uppercase;letter-spacing:.3px}
-    input,select{padding:8px 10px;border:1px solid #c8c6c4;border-radius:4px;font-size:13px;color:#323130;transition:border-color .15s}
+    input,select{padding:8px 10px;border:1px solid #c8c6c4;border-radius:4px;font-size:13px;color:#323130;transition:border-color .15s;width:100%}
     input:focus,select:focus{outline:none;border-color:#0078d4;box-shadow:0 0 0 2px rgba(0,120,212,.12)}
     input[type=password]{font-family:monospace}
     .hint{font-size:11px;color:#605e5c;margin-top:3px}
@@ -31,32 +31,43 @@
     .btn-copy{background:#107c10;color:white;padding:8px 16px;font-size:13px}
     .btn-copy:hover{background:#0b6a0b}
     .btn-copy.copied{background:#605e5c}
-    .output-box{background:#1e1e1e;color:#d4d4d4;border-radius:6px;padding:14px 16px;font-family:Consolas,monospace;font-size:12px;line-height:1.6;word-break:break-all;white-space:pre-wrap;margin-top:12px;position:relative;display:none}
+    .output-box{background:#1e1e1e;color:#d4d4d4;border-radius:6px;padding:14px 16px;font-family:Consolas,monospace;font-size:12px;line-height:1.6;word-break:break-all;white-space:pre-wrap;margin-top:12px;position:relative}
     .output-box .copy-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
     .output-box .label{color:#9cdcfe;font-size:11px;font-weight:600;text-transform:uppercase}
     .output-box code{color:#ce9178}
     .steps-guide{display:flex;flex-direction:column;gap:10px}
-    .step-item{display:flex;gap:12px;align-items:flex-start;padding:10px;border-radius:6px;background:#f8f7f6}
+    .step-item{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:6px;background:#f8f7f6}
     .step-item .num{background:#0078d4;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px}
-    .step-item .text{font-size:13px;line-height:1.5}
+    .step-item .text{font-size:13px;line-height:1.6}
     .step-item .text strong{display:block;font-weight:600;margin-bottom:2px}
     .step-item .text a{color:#0078d4;text-decoration:none}
     .step-item .text a:hover{text-decoration:underline}
+    .step-item .text code{background:#e8e6e3;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:12px}
     .badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-weight:700}
     .badge-free{background:#dff6dd;color:#107c10}
     .warning-box{background:#fff4ce;border:1px solid #f7e28d;border-radius:6px;padding:10px 14px;font-size:12px;color:#323130;margin-bottom:14px}
     .warning-box strong{color:#7a4f00}
     .user-chip{background:rgba(255,255,255,.2);border-radius:20px;padding:3px 12px;font-size:12px;display:inline-block;margin-top:4px}
+    .webhook-steps{background:#f0f6ff;border:1px solid #c7e0f4;border-radius:6px;padding:14px 16px;margin-top:10px}
+    .webhook-steps h4{font-size:12px;font-weight:700;color:#0078d4;margin-bottom:10px;text-transform:uppercase;letter-spacing:.3px}
+    .webhook-steps ol{padding-left:20px;display:flex;flex-direction:column;gap:7px}
+    .webhook-steps li{font-size:12px;line-height:1.5;color:#323130}
+    .webhook-steps li code{background:#ddeeff;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:11px}
+    .tab-switch{display:flex;gap:4px;margin-bottom:10px}
+    .tab-btn{padding:5px 14px;border:1px solid #c8c6c4;border-radius:4px;font-size:12px;cursor:pointer;background:white;color:#323130}
+    .tab-btn.active{background:#0078d4;color:white;border-color:#0078d4}
+    .tab-pane{display:none}
+    .tab-pane.active{display:block}
   </style>
 </head>
 <body>
 <div class="app">
 
   <div class="header">
-    <div style="font-size:36px">🔔</div>
+    <div style="font-size:36px">&#128276;</div>
     <div>
       <h1>PR Aging Reminder</h1>
-      <p>Daily Teams + Email alerts for your aging pull requests</p>
+      <p>Automatic daily Teams alerts for pull requests approaching the 14-day review policy</p>
       <div class="user-chip" id="user-chip">Loading...</div>
     </div>
   </div>
@@ -65,81 +76,114 @@
   <div class="card">
     <h2><span class="step-num">i</span> How it works</h2>
     <div class="steps-guide">
-      <div class="step-item"><div class="num">1</div><div class="text"><strong>Download the plugin ZIP</strong>Extract it to a permanent folder on your machine (e.g. <code>C:\Tools\PRAgingReminder\</code>)</div></div>
-      <div class="step-item"><div class="num">2</div><div class="text"><strong>Fill in your details below</strong>Org, project, PAT, webhook URL — all pre-filled where possible</div></div>
-      <div class="step-item"><div class="num">3</div><div class="text"><strong>Copy the generated command</strong>Paste it in PowerShell inside your extracted folder — it installs silently and sends your first reminder</div></div>
-      <div class="step-item"><div class="num">4</div><div class="text"><strong>Done — reminders run automatically</strong>A Windows Scheduled Task fires Mon-Fri at your chosen time <span class="badge badge-free">No cloud required</span></div></div>
+      <div class="step-item"><div class="num">1</div><div class="text"><strong>Download &amp; extract the plugin ZIP</strong>Save it to a permanent folder, e.g. <code>C:\Tools\PRAgingReminder\</code> &mdash; do not move it after install.</div></div>
+      <div class="step-item"><div class="num">2</div><div class="text"><strong>Create a PAT and a Teams webhook</strong>Two quick steps below &mdash; takes about 3 minutes total.</div></div>
+      <div class="step-item"><div class="num">3</div><div class="text"><strong>Fill the form &rarr; copy the command &rarr; paste in PowerShell</strong>One command installs everything silently and sends your first reminder.</div></div>
+      <div class="step-item"><div class="num">4</div><div class="text"><strong>Reminders run automatically every weekday</strong>A Windows Scheduled Task fires Mon-Fri at 09:00. <span class="badge badge-free">No cloud required</span></div></div>
     </div>
   </div>
 
-  <!-- Prerequisites -->
+  <!-- Step A: PAT -->
   <div class="card">
-    <h2><span class="step-num">A</span> Prerequisites</h2>
+    <h2><span class="step-num">A</span> Create an Azure DevOps PAT</h2>
     <div class="steps-guide">
       <div class="step-item">
         <div class="num">1</div>
         <div class="text">
-          <strong>Download plugin ZIP</strong>
-          <a href="https://kunalekawde.github.io/pr-aging-reminder/PRAgingReminder.zip" target="_blank">Download PRAgingReminder.zip</a> and extract to a permanent folder.
+          <strong>Open your PAT settings</strong>
+          Go to <a href="https://dev.azure.com/msazuredev/_usersSettings/tokens" target="_blank">dev.azure.com &rarr; User Settings &rarr; Personal Access Tokens</a>
+          (or click your avatar top-right &rarr; <strong>Security</strong>).
         </div>
       </div>
       <div class="step-item">
         <div class="num">2</div>
         <div class="text">
-          <strong>Create an Azure DevOps PAT</strong>
-          Go to <a href="https://dev.azure.com/msazuredev/_usersSettings/tokens" target="_blank">dev.azure.com → User Settings → PATs</a>
-          → New Token → Scope: <strong>Code &gt; Read</strong> → Copy the token.
+          <strong>Click &ldquo;New Token&rdquo;</strong>
+          Give it a name like <em>PR Aging Reminder</em>, set expiry to <strong>1 year</strong>.
         </div>
       </div>
       <div class="step-item">
         <div class="num">3</div>
         <div class="text">
-          <strong>Create a Teams Incoming Webhook</strong>
-          In your Teams channel: <strong>··· → Connectors → Incoming Webhook → Configure</strong> → Copy URL.
-          <br><em style="color:#605e5c;font-size:11px;">Skip if using email-only notifications.</em>
+          <strong>Set scope: Code &rarr; Read only</strong>
+          Under <em>Scopes</em>, select <strong>Custom defined</strong>, then tick <strong>Code &rarr; Read</strong>. No other scopes needed.
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="num">4</div>
+        <div class="text">
+          <strong>Click Create &rarr; Copy the token</strong>
+          You will only see it once. Paste it in the form below.
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Configuration Form -->
+  <!-- Step B: Teams Webhook -->
   <div class="card">
-    <h2><span class="step-num">B</span> Configure Your Reminders</h2>
+    <h2><span class="step-num">B</span> Create a Teams Incoming Webhook</h2>
+
+    <div class="tab-switch">
+      <button class="tab-btn active" onclick="showTab('new-teams')">New Teams</button>
+      <button class="tab-btn" onclick="showTab('classic-teams')">Classic Teams</button>
+    </div>
+
+    <div id="new-teams" class="tab-pane active">
+      <div class="steps-guide">
+        <div class="step-item"><div class="num">1</div><div class="text"><strong>Go to the channel you want alerts in</strong>This is usually a personal or team channel (e.g. <em>#pr-reviews</em> or your own <em>General</em>).</div></div>
+        <div class="step-item"><div class="num">2</div><div class="text"><strong>Click the &ldquo;&#8943;&rdquo; (More options) next to the channel name</strong>Then select <strong>Manage channel</strong>.</div></div>
+        <div class="step-item"><div class="num">3</div><div class="text"><strong>Scroll to &ldquo;Connectors&rdquo; &rarr; click Edit</strong>In the Connectors panel, search for <strong>Incoming Webhook</strong> and click <strong>Add</strong>.</div></div>
+        <div class="step-item"><div class="num">4</div><div class="text"><strong>Configure the webhook</strong>Give it a name like <em>PR Aging Reminder</em>, optionally upload an icon, then click <strong>Create</strong>.</div></div>
+        <div class="step-item"><div class="num">5</div><div class="text"><strong>Copy the webhook URL</strong>The URL starts with <code>https://microsoft.webhook.office.com/...</code> or <code>https://outlook.office.com/webhook/...</code>. Copy it and paste below.</div></div>
+      </div>
+    </div>
+
+    <div id="classic-teams" class="tab-pane">
+      <div class="steps-guide">
+        <div class="step-item"><div class="num">1</div><div class="text"><strong>Go to the channel you want alerts in</strong></div></div>
+        <div class="step-item"><div class="num">2</div><div class="text"><strong>Click &ldquo;&#8943;&rdquo; next to the channel &rarr; Connectors</strong></div></div>
+        <div class="step-item"><div class="num">3</div><div class="text"><strong>Search &ldquo;Incoming Webhook&rdquo; &rarr; Configure</strong></div></div>
+        <div class="step-item"><div class="num">4</div><div class="text"><strong>Enter a name &rarr; click Create</strong></div></div>
+        <div class="step-item"><div class="num">5</div><div class="text"><strong>Copy the URL &rarr; click Done</strong>Paste the URL in the form below.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step C: Form -->
+  <div class="card">
+    <h2><span class="step-num">C</span> Configure Your Reminders</h2>
 
     <div class="warning-box">
-      <strong>Security note:</strong> Your PAT is used only to generate the install command below.
-      It is never sent to any server — the command runs entirely on your machine.
-      The PAT is stored encrypted (Windows DPAPI) in <code>config.json</code> on your local disk.
+      <strong>Security note:</strong> Your PAT is only used to generate the install command below.
+      It is never sent to any server &mdash; the command runs entirely on your local machine.
+      The PAT is stored encrypted (Windows DPAPI) in <code>config.json</code>.
     </div>
 
     <div class="form-grid">
       <div class="form-group">
         <label>Azure DevOps Organization</label>
         <input id="orgName" type="text" placeholder="msazuredev" value="msazuredev"/>
+        <div class="hint">From your ADO URL: dev.azure.com/<strong>{ORG}</strong>/...</div>
       </div>
       <div class="form-group">
         <label>Project Name</label>
         <input id="project" type="text" placeholder="AzureForOperators" value="AzureForOperators"/>
+        <div class="hint">From your ADO URL: dev.azure.com/org/<strong>{PROJECT}</strong>/...</div>
       </div>
       <div class="form-group full">
-        <label>Your Email Address</label>
-        <input id="userEmail" type="email" placeholder="you@microsoft.com" id="userEmail"/>
-        <div class="hint">Must match the email on your Azure DevOps PRs</div>
+        <label>Your Email Address (PR creator identity)</label>
+        <input id="userEmail" type="email" placeholder="you@microsoft.com"/>
+        <div class="hint">Auto-filled from your Teams account &mdash; must match your Azure DevOps identity</div>
       </div>
       <div class="form-group full">
         <label>Azure DevOps PAT <span style="color:#c0392b">*</span></label>
-        <input id="pat" type="password" placeholder="Paste your Personal Access Token (Code > Read scope)"/>
-        <div class="hint"><a href="https://dev.azure.com/msazuredev/_usersSettings/tokens" target="_blank">Create a PAT here</a> with scope: Code &gt; Read</div>
+        <input id="pat" type="password" placeholder="Paste your Personal Access Token (Code &gt; Read scope)"/>
+        <div class="hint"><a href="https://dev.azure.com/msazuredev/_usersSettings/tokens" target="_blank">Create PAT</a> &mdash; scope: Code &gt; Read only</div>
       </div>
       <div class="form-group full">
-        <label>Teams Incoming Webhook URL <span style="color:#888;font-weight:400">(optional)</span></label>
-        <input id="teamsWebhookUrl" type="url" placeholder="https://outlook.office.com/webhook/..."/>
-        <div class="hint">Teams channel → ··· → Connectors → Incoming Webhook → Configure</div>
-      </div>
-      <div class="form-group full">
-        <label>Email Notification To <span style="color:#888;font-weight:400">(optional)</span></label>
-        <input id="emailTo" type="text" placeholder="you@microsoft.com"/>
-        <div class="hint">Sent via Microsoft Graph API (uses your existing az login session)</div>
+        <label>Teams Incoming Webhook URL <span style="color:#c0392b">*</span></label>
+        <input id="teamsWebhookUrl" type="url" placeholder="https://microsoft.webhook.office.com/webhookb2/..."/>
+        <div class="hint">From Step B above &mdash; URL starting with microsoft.webhook.office.com or outlook.office.com</div>
       </div>
       <div class="form-group">
         <label>Aging Policy (days)</label>
@@ -149,23 +193,23 @@
       <div class="form-group">
         <label>Daily Reminder Time (24h)</label>
         <input id="scheduleTime" type="text" value="09:00" placeholder="09:00"/>
-        <div class="hint">Mon–Fri, local machine time</div>
+        <div class="hint">Mon-Fri, your local machine time</div>
       </div>
     </div>
 
     <div style="margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <button class="btn btn-primary" onclick="generateCommand()">Generate Install Command</button>
-      <span style="font-size:12px;color:#605e5c">PAT required — all other fields have defaults</span>
+      <button class="btn btn-primary" onclick="generateCommand()">&#9889; Generate Install Command</button>
+      <span style="font-size:12px;color:#605e5c">PAT + Webhook URL required</span>
     </div>
   </div>
 
   <!-- Generated Command -->
   <div class="card" id="cmd-card" style="display:none">
-    <h2><span class="step-num">C</span> Run This Command in PowerShell</h2>
-    <p style="font-size:13px;color:#605e5c;margin-bottom:4px">
-      Open PowerShell, <code>cd</code> to where you extracted the plugin ZIP, then paste:
+    <h2><span class="step-num">D</span> Run This in PowerShell</h2>
+    <p style="font-size:13px;color:#605e5c;margin-bottom:8px">
+      Open PowerShell, <code style="background:#f3f2f1;padding:1px 5px;border-radius:3px">cd</code> into your extracted plugin folder, then paste:
     </p>
-    <div class="output-box" id="cmd-output" style="display:block">
+    <div class="output-box">
       <div class="copy-row">
         <span class="label">PowerShell</span>
         <button class="btn btn-copy" id="copy-btn" onclick="copyCommand()">Copy Command</button>
@@ -173,24 +217,42 @@
       <code id="cmd-text"></code>
     </div>
     <div style="margin-top:12px;font-size:13px;color:#605e5c">
-      This command unblocks the downloaded scripts, installs silently, registers the scheduled task, and sends your first reminder.
-      <br>To update settings later: <code style="background:#f3f2f1;padding:1px 5px;border-radius:3px">.\Install.ps1 -Reconfigure</code>
+      This unblocks the scripts, installs silently, registers the scheduled task, and sends your first Teams reminder immediately.
+      <br>To reconfigure later: <code style="background:#f3f2f1;padding:1px 5px;border-radius:3px">.\Install.ps1 -Reconfigure</code>
+      &nbsp;|&nbsp; To uninstall: <code style="background:#f3f2f1;padding:1px 5px;border-radius:3px">.\Uninstall.ps1</code>
     </div>
   </div>
 
-  <!-- Run Manually -->
+  <!-- Download -->
   <div class="card">
-    <h2><span class="step-num">D</span> Run on Demand</h2>
+    <h2><span class="step-num">&#8595;</span> Download Plugin</h2>
     <div class="steps-guide">
-      <div class="step-item"><div class="num">1</div><div class="text"><strong>From PowerShell</strong><code>.\PR-Reminder.ps1</code> — sends reminder immediately</div></div>
-      <div class="step-item"><div class="num">2</div><div class="text"><strong>Via Task Scheduler</strong><code>Start-ScheduledTask -TaskName PRAgingReminder</code></div></div>
-      <div class="step-item"><div class="num">3</div><div class="text"><strong>Dry run (no Teams/Email)</strong><code>.\PR-Reminder.ps1 -DryRun</code> — shows PR table in console</div></div>
-      <div class="step-item"><div class="num">4</div><div class="text"><strong>Uninstall</strong><code>.\Uninstall.ps1</code> — removes scheduled task and config</div></div>
+      <div class="step-item">
+        <div class="num">1</div>
+        <div class="text">
+          <strong><a href="https://kunalekawde.github.io/pr-aging-reminder/PRAgingReminder.zip" target="_blank">Download PRAgingReminder.zip</a></strong>
+          Extract to a <em>permanent</em> folder &mdash; the scheduled task references this location.
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="num">2</div>
+        <div class="text">
+          <strong>Open PowerShell in that folder</strong>
+          Right-click the folder in Explorer &rarr; <strong>Open in Terminal</strong> (or <code>cd C:\path\to\PRAgingReminder</code>).
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="num">3</div>
+        <div class="text">
+          <strong>Paste the generated command from Step D</strong>
+          The command includes <code>Unblock-File</code> automatically to bypass Windows download restrictions.
+        </div>
+      </div>
     </div>
   </div>
 
   <div style="text-align:center;font-size:11px;color:#a19f9d;padding:8px 0 20px">
-    PR Aging Reminder &nbsp;·&nbsp; No cloud required &nbsp;·&nbsp; PAT encrypted locally with Windows DPAPI
+    PR Aging Reminder &nbsp;&middot;&nbsp; No cloud required &nbsp;&middot;&nbsp; PAT encrypted with Windows DPAPI
   </div>
 </div>
 
@@ -199,21 +261,24 @@ microsoftTeams.app.initialize().then(() => {
   microsoftTeams.app.getContext().then(ctx => {
     const upn  = ctx.user && ctx.user.userPrincipalName ? ctx.user.userPrincipalName : '';
     const name = ctx.user && ctx.user.displayName      ? ctx.user.displayName       : upn;
-    document.getElementById('user-chip').textContent = name || 'Teams User';
+    document.getElementById('user-chip').textContent = name ? ('Signed in as ' + name) : 'Teams User';
     if (upn) {
-      const emailField = document.getElementById('userEmail');
-      if (!emailField.value) emailField.value = upn;
-      const emailToField = document.getElementById('emailTo');
-      if (!emailToField.value) emailToField.value = upn;
+      const ef = document.getElementById('userEmail');
+      if (!ef.value) ef.value = upn;
     }
   });
 }).catch(() => {
   document.getElementById('user-chip').textContent = 'Running outside Teams';
 });
 
-function esc(s) {
-  return s.replace(/"/g, '`"');
+function showTab(id) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
 }
+
+function esc(s) { return s.replace(/"/g, '`"'); }
 
 function generateCommand() {
   const orgName         = document.getElementById('orgName').value.trim();
@@ -221,7 +286,6 @@ function generateCommand() {
   const userEmail       = document.getElementById('userEmail').value.trim();
   const pat             = document.getElementById('pat').value.trim();
   const teamsWebhookUrl = document.getElementById('teamsWebhookUrl').value.trim();
-  const emailTo         = document.getElementById('emailTo').value.trim();
   const agingDays       = document.getElementById('agingDays').value.trim() || '14';
   const scheduleTime    = document.getElementById('scheduleTime').value.trim() || '09:00';
 
@@ -234,18 +298,18 @@ function generateCommand() {
     alert('Organization name and project name are required.');
     return;
   }
-  if (!teamsWebhookUrl && !emailTo) {
-    alert('Please provide at least one notification channel: Teams Webhook URL or Email.');
+  if (!teamsWebhookUrl) {
+    alert('Teams Incoming Webhook URL is required. Follow Step B to create one.');
+    document.getElementById('teamsWebhookUrl').focus();
     return;
   }
 
   let cmd = `Get-ChildItem .\\*.ps1 | Unblock-File; .\\Install.ps1 -NonInteractive`;
   cmd += ` -OrgName "${esc(orgName)}"`;
   cmd += ` -Project "${esc(project)}"`;
-  if (userEmail)       cmd += ` -UserEmail "${esc(userEmail)}"`;
+  if (userEmail) cmd += ` -UserEmail "${esc(userEmail)}"`;
   cmd += ` -PAT "${esc(pat)}"`;
-  if (teamsWebhookUrl) cmd += ` -TeamsWebhookUrl "${esc(teamsWebhookUrl)}"`;
-  if (emailTo)         cmd += ` -EmailTo "${esc(emailTo)}"`;
+  cmd += ` -TeamsWebhookUrl "${esc(teamsWebhookUrl)}"`;
   cmd += ` -AgingDays ${agingDays}`;
   cmd += ` -ScheduleTime "${scheduleTime}"`;
 
@@ -253,7 +317,6 @@ function generateCommand() {
   document.getElementById('cmd-card').style.display = 'block';
   document.getElementById('cmd-card').scrollIntoView({ behavior: 'smooth' });
 
-  // Reset copy button
   const btn = document.getElementById('copy-btn');
   btn.textContent = 'Copy Command';
   btn.className = 'btn btn-copy';
@@ -265,18 +328,11 @@ function copyCommand() {
     const btn = document.getElementById('copy-btn');
     btn.textContent = 'Copied!';
     btn.className = 'btn btn-copy copied';
-    setTimeout(() => {
-      btn.textContent = 'Copy Command';
-      btn.className = 'btn btn-copy';
-    }, 2500);
+    setTimeout(() => { btn.textContent = 'Copy Command'; btn.className = 'btn btn-copy'; }, 2500);
   }).catch(() => {
-    // Fallback for older browsers
     const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
   });
 }
 </script>
