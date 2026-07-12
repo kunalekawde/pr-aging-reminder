@@ -10,8 +10,6 @@ on:
 # -- workflow level settings --
 env:
   WF_VAR: "This is workflow level env var"
-permissions: read-all
-concurrency:
 
 jobs:
   prepare-env:
