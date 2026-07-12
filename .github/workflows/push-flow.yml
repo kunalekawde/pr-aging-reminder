@@ -1,0 +1,44 @@
+name: runs when code is pushed
+
+# -- Trigger(s) ---
+on:
+  push:
+    branches: [ main, 'release/**' ]
+    paths: [ '*' ]
+  workflow_dispatch: # allow manual runs from the UI
+
+# -- workflow level settings --
+env:
+  WF_VAR: "This is workflow level env var"
+permissions: read-all
+concurrency:
+
+jobs:
+  prepare-env:
+    runs-on: ubuntu-latest
+    outputs:
+      build-id: ${{ steps.gen.outputs.id }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: gen
+        run: echo "id=$(date +%s)" >> "$GITHUB_OUTPUT"
+        
+  fetch-metrics:
+    runs-on: ubuntu-latest
+    needs: prepare-env
+    env:
+      JOB_VAR: "Job level var"
+    steps:
+      - name: Show inherited + job vars
+        run: |
+          echo "Workflow var: $WF_VAR"
+          
+  actions:
+    runs-on: ubuntu-latest
+    needs: [ prepare-env, fetch-metrics ]
+    strategy:
+      matrix:
+        version: [ '1.21', '1.22' ]
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Running for version ${{ matrix.version}}"
